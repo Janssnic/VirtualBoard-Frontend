@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="boards" ></div>
+</body>
+
+</html>
+
+<script>
+    const boards = document.getElementById("boards");
+
+    const boardNames = ["Project Alpha", "Marketing Plan", "Development Roadmap", "Development Roadmap", "Project Alpha", "Marketing Plan", "Development Roadmap", "Development Roadmap"];
+    boardNames.forEach(name => {
+        const boardDiv = document.createElement("div");
+        boardDiv.className = "board";
+        boardDiv.textContent = name;
+        boardDiv.addEventListener("click", () => goToBoard(boardDiv.textContent));
+        boards.appendChild(boardDiv);
+    });
+
+    function goToBoard(board){
+        console.log(board)
+    }
+</script>
+
+<style>
+    #boards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1vw;
+    }
+
+    .board {
+        width: 100%;
+        height: 20vh;
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .board:hover {
+        background: #e0e7ff;
+        border-color: #6366f1;
+        box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+</style>
