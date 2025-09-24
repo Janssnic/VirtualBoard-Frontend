@@ -17,8 +17,8 @@ loginForm.addEventListener("submit", async(event) => {
             })
         });
         const data = await response.json();
-        localStorage.setItem("user", JSON.stringify(data.jwt));
-        console.debug(localStorage.getItem("user"))
+        localStorage.setItem("token", data.jwt);
+        console.debug(localStorage.getItem("token"))
         return data;
     } catch (error) {
         console.error("Login failed:", error);

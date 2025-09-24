@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div id="boards" ></div>
+    <div id="boards"></div>
 </body>
 
 </html>
@@ -16,16 +16,39 @@
 <script>
     const boards = document.getElementById("boards");
 
-    const boardNames = ["Project Alpha", "Marketing Plan", "Development Roadmap", "Development Roadmap", "Project Alpha", "Marketing Plan", "Development Roadmap", "Development Roadmap"];
-    boardNames.forEach(name => {
-        const boardDiv = document.createElement("div");
-        boardDiv.className = "board";
-        boardDiv.textContent = name;
-        boardDiv.addEventListener("click", () => goToBoard(boardDiv.textContent));
-        boards.appendChild(boardDiv);
+    async function fetchBoards() {
+        try {
+            const response = await fetch("http://localhost:8080/boards", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            const data = await response.json();
+            console.log(data);
+
+            return data;
+        } catch (error) {
+            console.error("Login failed:", error);
+            return null;
+        }
+    }
+
+    fetchBoards().then(data => {
+        if (data && data.boards && data.boards.length > 0) {
+            console.log(data.boards[0].board.title);
+
+            data.boards.forEach(boardObj => {
+                const boardDiv = document.createElement("div");
+                boardDiv.className = "board";
+                boardDiv.textContent = boardObj.board.title;
+                boardDiv.addEventListener("click", () => goToBoard(boardObj.board.id));
+                boards.appendChild(boardDiv);
+            });
+        }
     });
 
-    function goToBoard(board){
+    function goToBoard(board) {
         console.log(board)
     }
 </script>
@@ -48,12 +71,13 @@
         justify-content: center;
         font-size: 1.1rem;
         font-weight: 500;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     }
+
     .board:hover {
         background: #e0e7ff;
         border-color: #6366f1;
-        box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
         cursor: pointer;
         transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
