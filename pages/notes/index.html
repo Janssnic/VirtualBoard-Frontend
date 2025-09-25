@@ -8,9 +8,10 @@
 </head>
 
 <body>
-    <div id="boardDiv" style="position: relative; width: 100%; height: 100vh; background: #f0f0f0;">
+    <div id="boardDiv">
 
     </div>
+    <button id="createNoteBtn">Create New Note</button>
 </body>
 
 </html>
@@ -20,14 +21,22 @@
     const urlParams = new URLSearchParams(window.location.search)
     const boardId = urlParams.get("board")
     const boardDiv = document.getElementById("boardDiv")
-    //console.log("Selected board:", boardId)
+
+
+
+    document.getElementById("createNoteBtn").addEventListener("click", () => {
+        const centerX = parseInt(Math.random() * 20 + window.innerWidth / 2, 10)
+        const centerY = parseInt(Math.random() * 20 + window.innerHeight / 2, 10)
+
+        postNewNote(boardId, centerX, centerY)
+    })
 
 
     async function fetchNotes() {
         try {
             const response = await fetch(`http://localhost:8081/notes/${boardId}`, {
                 method: "GET",
-            });
+            })
             const data = await response.json()
             //console.log(data) 
             return data
@@ -37,33 +46,203 @@
         }
     }
 
+    async function postNewNote(boardId, x, y) {
+        try {
+            const response = await fetch(`http://localhost:8081/notes/${boardId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    content: "text here",
+                    x_loc: x,
+                    y_loc: y
+                })
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to create note")
+
+            }
+
+            const newNote = await response.json();
+            console.log("Note created:", newNote);
+            const notes = await fetchNotes()
+            if (notes) {
+                boardDiv.innerHTML = ""
+                renderNotes(notes)
+            }
+            return newNote;
+        } catch (error) {
+            console.error("Error creating note:", error);
+        }
+
+    }
+
+
+
     function renderNotes(notes) {
+        const boardDiv = document.getElementById("boardDiv")
+        boardDiv.innerHTML = ""
+
         notes.forEach(note => {
             const noteDiv = document.createElement("div")
             noteDiv.className = "note"
-            noteDiv.textContent = note.content
-            noteDiv.style.position = "absolute";
-            noteDiv.style.left = note.x_loc + "px";
-            noteDiv.style.top = note.y_loc + "px";
-            noteDiv.style.width = "150px";
-            noteDiv.style.padding = "10px";
-            noteDiv.style.background = "#fffa";
-            noteDiv.style.border = "1px solid #ccc";
-            noteDiv.style.cursor = "grab";
-            noteDiv.setAttribute("data-id", note.id);
+            noteDiv.style.position = "absolute"
+            noteDiv.style.left = note.x_loc + "px"
+            noteDiv.style.top = note.y_loc + "px"
+            noteDiv.style.width = "150px"
+            noteDiv.style.minHeight = "40px"
+            noteDiv.style.padding = "10px"
+            noteDiv.style.background = "#fffa"
+            noteDiv.style.border = "1px solid #ccc"
+            noteDiv.style.cursor = "grab"
+            noteDiv.style.boxSizing = "border-box"
+            noteDiv.setAttribute("data-id", note.id)
 
+            const content = document.createElement("div")
+            content.textContent = note.content
+            content.style.marginRight = "20px"
+            noteDiv.appendChild(content)
+
+            content.addEventListener("dblclick", () => {
+                const input = document.createElement("textarea")
+                input.value = content.textContent
+                input.style.width = "100%"
+                input.style.height = "50px"
+                input.style.boxSizing = "border-box"
+
+                noteDiv.replaceChild(input, content)
+                input.focus()
+
+                function saveEdit() {
+                    const newText = input.value.trim()
+                    patchNoteText(note.id, newText)
+                    content.textContent = newText
+                    noteDiv.replaceChild(content, input)
+                }
+
+                input.addEventListener("blur", saveEdit)
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault()
+                        saveEdit()
+                    }
+                })
+            })
+
+            const deleteBtn = document.createElement("button")
+            deleteBtn.textContent = "✖"
+            deleteBtn.style.position = "absolute"
+            deleteBtn.style.top = "2px"
+            deleteBtn.style.right = "2px"
+            deleteBtn.style.border = "none"
+            deleteBtn.style.background = "transparent"
+            deleteBtn.style.cursor = "pointer"
+            deleteBtn.style.color = "red"
+            deleteBtn.style.fontWeight = "bold"
+
+            deleteBtn.addEventListener("click", (e) => {
+                e.stopPropagation()
+                deleteNote(note.id, noteDiv)
+            })
+
+            noteDiv.appendChild(deleteBtn)
             boardDiv.appendChild(noteDiv)
-            
-            console.log(note)
+
+            makeDraggable(noteDiv)
         })
     }
 
-    
+
     fetchNotes().then(notes => {
         if (notes) {
-            renderNotes(notes);
+            renderNotes(notes)
         }
-    });
+    })
+
+    function makeDraggable(el) {
+        let posX, posY
+
+        el.addEventListener("mousedown", (e) => {
+            posX = e.clientX - el.offsetLeft
+            posY = e.clientY - el.offsetTop
+            el.style.cursor = "grabbing"
+
+            function onMouseMove(e) {
+                el.style.left = e.clientX - posX + "px"
+                el.style.top = e.clientY - posY + "px"
+            }
+
+            function onMouseUp() {
+                el.style.cursor = "grab"
+                document.removeEventListener("mousemove", onMouseMove)
+                document.removeEventListener("mouseup", onMouseUp)
+
+                const noteId = el.getAttribute("data-id")
+                patchNotePosition(noteId, el.offsetLeft, el.offsetTop)
+            }
+
+            document.addEventListener("mousemove", onMouseMove)
+            document.addEventListener("mouseup", onMouseUp)
+        })
+    }
+
+    async function patchNotePosition(id, x, y) {
+        try {
+            const response = await fetch(`http://localhost:8081/notes/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    x_loc: x,
+                    y_loc: y
+                }),
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to update note position")
+            }
+
+            console.log(`Note ${id} position updated to (${x}, ${y})`)
+        } catch (err) {
+            console.error("Error updating note:", err)
+        }
+    }
+
+    async function patchNoteText(id, newText) {
+        try {
+            const response = await fetch(`http://localhost:8081/notes/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newText })
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to update note text")
+            }
+
+            console.log(`Note ${id} text updated: "${newText}"`)
+        } catch (err) {
+            console.error("Error updating text:", err)
+        }
+    }
+
+
+    async function deleteNote(id, noteDiv) {
+        try {
+            const response = await fetch(`http://localhost:8081/notes/${id}`, {
+                method: "DELETE"
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to delete note")
+            }
+
+            noteDiv.remove()
+            console.log(`Note ${id} deleted`)
+        } catch (err) {
+            console.error("Error deleting note:", err)
+        }
+    }
+
 
 
 </script>

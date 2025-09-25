@@ -2,8 +2,8 @@ const loginForm = document.getElementById("loginForm")
 
 loginForm.addEventListener("submit", async (event) => {
     event.preventDefault()
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
 
     try {
         const response = await fetch("http://localhost:8080/users/login", {
@@ -15,7 +15,7 @@ loginForm.addEventListener("submit", async (event) => {
                 email,
                 password
             })
-        });
+        })
 
         if (!response.ok) {
             alert("Login failed")
@@ -33,6 +33,4 @@ loginForm.addEventListener("submit", async (event) => {
         console.error("Login failed:", error)
     }
 })
-
-
 
