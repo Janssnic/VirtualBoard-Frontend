@@ -49,8 +49,9 @@
     });
 
     function goToBoard(board) {
-        console.log(board)
+        window.location.href = `../notes/index.html?board=${encodeURIComponent(board)}`;
     }
+
 </script>
 
 <style>

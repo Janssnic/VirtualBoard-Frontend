@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="boardDiv" style="position: relative; width: 100%; height: 100vh; background: #f0f0f0;">
+
+    </div>
+</body>
+
+</html>
+
+<script>
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const boardId = urlParams.get("board")
+    const boardDiv = document.getElementById("boardDiv")
+    //console.log("Selected board:", boardId)
+
+
+    async function fetchNotes() {
+        try {
+            const response = await fetch(`http://localhost:8081/notes/${boardId}`, {
+                method: "GET",
+            });
+            const data = await response.json()
+            //console.log(data) 
+            return data
+        } catch (error) {
+            console.error("Login failed:", error)
+            return null
+        }
+    }
+
+    function renderNotes(notes) {
+        notes.forEach(note => {
+            const noteDiv = document.createElement("div")
+            noteDiv.className = "note"
+            noteDiv.textContent = note.content
+            noteDiv.style.position = "absolute";
+            noteDiv.style.left = note.x_loc + "px";
+            noteDiv.style.top = note.y_loc + "px";
+            noteDiv.style.width = "150px";
+            noteDiv.style.padding = "10px";
+            noteDiv.style.background = "#fffa";
+            noteDiv.style.border = "1px solid #ccc";
+            noteDiv.style.cursor = "grab";
+            noteDiv.setAttribute("data-id", note.id);
+
+            boardDiv.appendChild(noteDiv)
+            
+            console.log(note)
+        })
+    }
+
+    
+    fetchNotes().then(notes => {
+        if (notes) {
+            renderNotes(notes);
+        }
+    });
+
+
+</script>
