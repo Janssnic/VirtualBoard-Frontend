@@ -9,12 +9,23 @@
 
 <body>
     <div id="boards"></div>
+
     <div id="modal" class="modal hidden">
         <div class="modal-content">
             <h2>Create new board</h2>
             <input type="text" id="boardTitle" placeholder="Title">
             <button id="createBoardBtn">Create</button>
             <button id="closeModalBtn">Close</button>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal hidden">
+        <div class="modal-content">
+            <p id="deleteMessage">Are you sure you want to delete this board?</p>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="confirmDeleteBtn">Delete</button>
+                <button id="cancelDeleteBtn">Cancel</button>
+            </div>
         </div>
     </div>
 </body>
@@ -92,9 +103,59 @@
             data.boards.forEach(boardObj => {
                 const boardDiv = document.createElement("div");
                 boardDiv.className = "board";
-                boardDiv.textContent = boardObj.board.title;
+
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = boardObj.board.title;
+                titleSpan.className = "board-title";
                 boardDiv.addEventListener("click", () => goToBoard(boardObj.board.id));
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "❌";
+                deleteBtn.className = "delete-btn";
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    showDeleteConfirmation(boardObj.board.id, boardObj.board.title);
+                })
+                boardDiv.appendChild(titleSpan);
+                boardDiv.appendChild(deleteBtn);
                 boards.appendChild(boardDiv);
+            })
+
+
+            let boardToDelete = null;
+
+            function showDeleteConfirmation(boardId, boardTitle) {
+                boardToDelete = boardId;
+                document.getElementById("deleteMessage").textContent = `Are you sure you want to delete the board "${boardTitle}"?`;
+                document.getElementById("deleteModal").classList.remove("hidden");
+            }
+
+            document.getElementById("cancelDeleteBtn").addEventListener("click", () => {
+                document.getElementById("deleteModal").classList.add("hidden");
+                boardToDelete = null;
+            });
+
+            document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+                if (boardToDelete) {
+                    try {
+                        const response = await fetch(`http://localhost:8080/boards/${boardToDelete}`, {
+                            method: "DELETE",
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`
+                            }
+                        });
+                        if (!response.ok) {
+                            throw new Error("Failed to delete board");
+                        }
+                        console.log("Board deleted:", boardToDelete);
+                        document.getElementById("deleteModal").classList.add("hidden");
+                        boardToDelete = null;
+                        window.location.reload();
+                    } catch (error) {
+                        console.error("Error deleting board:", error);
+                        alert("Failed to delete board.");
+                    }
+                }
             });
         }
     });
@@ -113,6 +174,7 @@
     }
 
     .board {
+        position: relative;
         width: 100%;
         height: 20vh;
         background: #f5f5f5;
@@ -134,7 +196,25 @@
         transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
 
-    
+    .board-title {
+        text-align: center;
+        /* Prevents title from blocking click */
+    }
+
+    .delete-btn {
+        opacity: 0;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: transparent;
+        border: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+
+    .board:hover .delete-btn {
+    opacity: 1;
+}
 
     .modal {
         position: fixed;
@@ -152,7 +232,7 @@
     .hidden {
         display: none;
     }
-    
+
     .modal-content {
         background: white;
         padding: 2rem;
@@ -167,5 +247,26 @@
     .modal-content input {
         padding: 0.5rem;
         font-size: 1rem;
+    }
+
+    #deleteModal .modal-content p {
+        margin-bottom: 1rem;
+    }
+
+    #deleteModal button {
+        padding: 0.5rem 1rem;
+    }
+
+    #confirmDeleteBtn {
+        background-color: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+
+    #cancelDeleteBtn {
+        background-color: #e5e7eb;
+        border: none;
+        border-radius: 5px;
     }
 </style>
