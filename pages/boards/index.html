@@ -9,6 +9,14 @@
 
 <body>
     <div id="boards"></div>
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Create new board</h2>
+            <input type="text" id="boardTitle" placeholder="Title">
+            <button id="createBoardBtn">Create</button>
+            <button id="closeModalBtn">Close</button>
+        </div>
+    </div>
 </body>
 
 </html>
@@ -37,6 +45,49 @@
     fetchBoards().then(data => {
         if (data && data.boards && data.boards.length > 0) {
             console.log(data.boards[0].board.title);
+
+            const newBoardDiv = document.createElement("div");
+            newBoardDiv.className = "board";
+            newBoardDiv.textContent = "➕ New Board";
+            newBoardDiv.addEventListener("click", () => {
+                document.getElementById("modal").classList.remove("hidden")
+            });
+
+            document.getElementById("closeModalBtn").addEventListener("click", () => {
+                document.getElementById("modal").classList.add("hidden");
+                document.getElementById("boardTitle").value = "";
+                console.log("Modal closed");
+            });
+
+            document.getElementById("createBoardBtn").addEventListener("click", async () => {
+                const title = document.getElementById("boardTitle").value.trim();
+                if (title) {
+                    try {
+                        const response = await fetch("http://localhost:8080/boards", {
+                            method: "POST",
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ title })
+                        });
+                        if (!response.ok) {
+                            throw new Error("Failed to create board");
+                        }
+                        await response.json();
+                        console.log("Board created: " + title);
+                        document.getElementById("modal").classList.add("hidden");
+                        document.getElementById("boardTitle").value = "";
+                        window.location.reload();
+                    } catch (error) {
+                        console.error("Error creating board:", error);
+                        alert("Failed to create board.");
+                    }
+                }
+            });
+
+
+            boards.appendChild(newBoardDiv);
 
             data.boards.forEach(boardObj => {
                 const boardDiv = document.createElement("div");
@@ -81,5 +132,40 @@
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
         cursor: pointer;
         transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .hidden {
+        display: none;
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .modal-content input {
+        padding: 0.5rem;
+        font-size: 1rem;
     }
 </style>

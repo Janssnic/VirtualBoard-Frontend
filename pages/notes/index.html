@@ -12,6 +12,7 @@
 
     </div>
     <button id="createNoteBtn">Create New Note</button>
+    <button id="addUsersBtn">Add collaborators</button>
 </body>
 
 </html>
@@ -48,7 +49,7 @@
 
     async function postNewNote(boardId, x, y) {
         try {
-            const response = await fetch(`http://localhost:8081/notes/${boardId}`, {
+            const response = await fetch(`http://localhost:8080/notes/${boardId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
