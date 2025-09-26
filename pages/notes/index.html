@@ -13,6 +13,17 @@
     </div>
     <button id="createNoteBtn">Create New Note</button>
     <button id="addUsersBtn">Add collaborators</button>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Add new collaborator</h2>
+            <span id="memberSpan"></span>
+            <input type="text" id="memberEmail" placeholder="Email">
+            <button id="addMemberBtn">Add</button>
+            <button id="closeMemberBtn">Close</button>
+        </div>
+    </div>
+
 </body>
 
 </html>
@@ -22,6 +33,46 @@
     const urlParams = new URLSearchParams(window.location.search)
     const boardId = urlParams.get("board")
     const boardDiv = document.getElementById("boardDiv")
+
+
+
+    addUsersBtn.addEventListener("click", () => {
+        document.getElementById("memberSpan").textContent = ""
+        document.getElementById("modal").classList.remove("hidden")
+    });
+
+    document.getElementById("closeMemberBtn").addEventListener("click", () => {
+        document.getElementById("modal").classList.add("hidden");
+        document.getElementById("memberEmail").value = "";
+        console.log("Modal closed");
+    });
+
+    document.getElementById("addMemberBtn").addEventListener("click", async () => {
+        const email = document.getElementById("memberEmail").value.trim();
+        if (email) {
+            try {
+                const response = await fetch(`http://localhost:8080/boards/${boardId}`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
+                });
+                if (!response.ok) {
+                    throw new Error("Failed to add user");
+                }
+                await response.json();
+                console.log("user added: " + email);
+                document.getElementById("modal").classList.add("hidden");
+                document.getElementById("memberEmail").value = "";
+            } catch (error) {
+                console.error("Error adding user:", error);
+                document.getElementById("memberSpan").textContent = "Error adding user";
+            }
+        }
+    });
+
 
 
 
@@ -247,3 +298,42 @@
 
 
 </script>
+
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .modal-content input {
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+
+    #memberSpan {
+        color: red;
+    }
+</style>
