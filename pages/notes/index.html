@@ -40,16 +40,16 @@
     addUsersBtn.addEventListener("click", () => {
         document.getElementById("memberSpan").textContent = ""
         document.getElementById("modal").classList.remove("hidden")
-    });
+    })
 
     document.getElementById("closeMemberBtn").addEventListener("click", () => {
-        document.getElementById("modal").classList.add("hidden");
-        document.getElementById("memberEmail").value = "";
-        console.log("Modal closed");
-    });
+        document.getElementById("modal").classList.add("hidden")
+        document.getElementById("memberEmail").value = ""
+        console.log("Modal closed")
+    })
 
     document.getElementById("addMemberBtn").addEventListener("click", async () => {
-        const email = document.getElementById("memberEmail").value.trim();
+        const email = document.getElementById("memberEmail").value.trim()
         if (email) {
             try {
                 const response = await fetch(`${loginapi}${boardId}`, {
@@ -59,20 +59,20 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({ email })
-                });
+                })
                 if (!response.ok) {
-                    throw new Error("Failed to add user");
+                    throw new Error("Failed to add user")
                 }
-                await response.json();
-                console.log("user added: " + email);
-                document.getElementById("modal").classList.add("hidden");
-                document.getElementById("memberEmail").value = "";
+                await response.json()
+                console.log("user added: " + email)
+                document.getElementById("modal").classList.add("hidden")
+                document.getElementById("memberEmail").value = ""
             } catch (error) {
-                console.error("Error adding user:", error);
-                document.getElementById("memberSpan").textContent = "Error adding user";
+                console.error("Error adding user:", error)
+                document.getElementById("memberSpan").textContent = "Error adding user"
             }
         }
-    });
+    })
 
 
 
@@ -91,7 +91,7 @@
                 method: "GET",
             })
             const data = await response.json()
-            //console.log(data) 
+            console.log(data) 
             return data
         } catch (error) {
             console.error("Login failed:", error)
@@ -116,16 +116,16 @@
 
             }
 
-            const newNote = await response.json();
-            console.log("Note created:", newNote);
+            const newNote = await response.json()
+            console.log("Note created:", newNote)
             const notes = await fetchNotes()
             if (notes) {
                 boardDiv.innerHTML = ""
                 renderNotes(notes)
             }
-            return newNote;
+            return newNote
         } catch (error) {
-            console.error("Error creating note:", error);
+            console.error("Error creating note:", error)
         }
 
     }
@@ -149,7 +149,9 @@
             noteDiv.style.border = "1px solid #ccc"
             noteDiv.style.cursor = "grab"
             noteDiv.style.boxSizing = "border-box"
+            noteDiv.style.backgroundColor = note.title + "aa"
             noteDiv.setAttribute("data-id", note.id)
+           
 
             const content = document.createElement("div")
             content.textContent = note.content
@@ -199,6 +201,36 @@
             })
 
             noteDiv.appendChild(deleteBtn)
+
+            const colorContainer = document.createElement("div")
+            colorContainer.style.position = "absolute"
+            colorContainer.style.top = "2px"
+            colorContainer.style.left = "2px"
+            colorContainer.style.display = "flex"
+            colorContainer.style.gap = "4px"
+            colorContainer.style.zIndex = "2"
+
+            const colors = ["#f39c12", "#27ae60", "#8e44ad"]
+
+            colors.forEach(color => {
+                const colorBtn = document.createElement("button")
+                colorBtn.style.backgroundColor = color
+                colorBtn.style.width = "16px"
+                colorBtn.style.height = "16px"
+                colorBtn.style.border = "none"
+                colorBtn.style.borderRadius = "50%"
+                colorBtn.style.cursor = "pointer"
+                colorBtn.style.margin = "0"
+                colorBtn.addEventListener("click", (e) => {
+                    e.stopPropagation()
+                    noteDiv.style.background = color + "aa"
+                    patchNoteColor(note.id, color)
+                })
+                colorContainer.appendChild(colorBtn)
+            })
+
+            noteDiv.appendChild(colorContainer)
+
             boardDiv.appendChild(noteDiv)
 
             makeDraggable(noteDiv)
@@ -278,6 +310,23 @@
         }
     }
 
+    async function patchNoteColor(id, color) {
+         try {
+            const response = await fetch(`${notesapi}${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ color: color })
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to update note color")
+            }
+
+            console.log(`Note ${id} color updated: "${color}"`)
+        } catch (err) {
+            console.error("Error updating color:", err)
+        }
+    }
 
     async function deleteNote(id, noteDiv) {
         try {
@@ -297,6 +346,13 @@
     }
 
 
+    setInterval(() => {
+        fetchNotes().then(notes => {
+            if (notes) {
+                renderNotes(notes)
+            }
+        })
+    }, 5000)
 
 </script>
 
