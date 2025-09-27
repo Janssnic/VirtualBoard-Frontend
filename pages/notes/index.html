@@ -11,6 +11,7 @@
     <div id="boardDiv">
 
     </div>
+    <button id="backButton">Home</button>
     <button id="createNoteBtn">Create New Note</button>
     <button id="addUsersBtn">Add collaborators</button>
 
@@ -29,6 +30,10 @@
 </html>
 
 <script>
+
+    document.getElementById("backButton").addEventListener("click", () => {
+        window.location.href = "../boards"
+    })
 
     const urlParams = new URLSearchParams(window.location.search)
     const boardId = urlParams.get("board")
