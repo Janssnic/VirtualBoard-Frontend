@@ -6,7 +6,7 @@ loginForm.addEventListener("submit", async (event) => {
     const password = document.getElementById("password").value
 
     try {
-        const response = await fetch("http://localhost:8080/users/login", {
+        const response = await fetch("https://virtualboard-login.onrender.com/users/login", {
             method: "POST",
             headers: {
                 'Content-type': 'application/json',

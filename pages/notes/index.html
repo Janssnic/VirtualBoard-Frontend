@@ -34,7 +34,8 @@
     const boardId = urlParams.get("board")
     const boardDiv = document.getElementById("boardDiv")
 
-
+    const notesapi = "https://virtualboard-notes.onrender.com/notes/"
+    const loginapi = "https://virtualboard-login.onrender.com/boards/"
 
     addUsersBtn.addEventListener("click", () => {
         document.getElementById("memberSpan").textContent = ""
@@ -51,7 +52,7 @@
         const email = document.getElementById("memberEmail").value.trim();
         if (email) {
             try {
-                const response = await fetch(`http://localhost:8080/boards/${boardId}`, {
+                const response = await fetch(`${loginapi}${boardId}`, {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -86,7 +87,7 @@
 
     async function fetchNotes() {
         try {
-            const response = await fetch(`http://localhost:8081/notes/${boardId}`, {
+            const response = await fetch(`${notesapi}${boardId}`, {
                 method: "GET",
             })
             const data = await response.json()
@@ -100,7 +101,7 @@
 
     async function postNewNote(boardId, x, y) {
         try {
-            const response = await fetch(`http://localhost:8080/notes/${boardId}`, {
+            const response = await fetch(`${notesapi}${boardId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -240,7 +241,7 @@
 
     async function patchNotePosition(id, x, y) {
         try {
-            const response = await fetch(`http://localhost:8081/notes/${id}`, {
+            const response = await fetch(`${notesapi}${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -261,7 +262,7 @@
 
     async function patchNoteText(id, newText) {
         try {
-            const response = await fetch(`http://localhost:8081/notes/${id}`, {
+            const response = await fetch(`${notesapi}${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ content: newText })
@@ -280,7 +281,7 @@
 
     async function deleteNote(id, noteDiv) {
         try {
-            const response = await fetch(`http://localhost:8081/notes/${id}`, {
+            const response = await fetch(`${notesapi}${id}`, {
                 method: "DELETE"
             })
 
