@@ -11,9 +11,11 @@
     <div id="boardDiv">
 
     </div>
-    <button id="backButton">Home</button>
-    <button id="createNoteBtn">Create New Note</button>
-    <button id="addUsersBtn">Add collaborators</button>
+    <header class="header">
+        <button id="backButton">Home</button>
+        <button id="createNoteBtn">Create New Note</button>
+        <button id="addUsersBtn">Add collaborators</button>
+    </header>
 
     <div id="modal" class="modal hidden">
         <div class="modal-content">
@@ -96,7 +98,7 @@
                 method: "GET",
             })
             const data = await response.json()
-            console.log(data) 
+            console.log(data)
             return data
         } catch (error) {
             console.error("Login failed:", error)
@@ -156,7 +158,7 @@
             noteDiv.style.boxSizing = "border-box"
             noteDiv.style.backgroundColor = note.title + "aa"
             noteDiv.setAttribute("data-id", note.id)
-           
+
 
             const content = document.createElement("div")
             content.textContent = note.content
@@ -316,7 +318,7 @@
     }
 
     async function patchNoteColor(id, color) {
-         try {
+        try {
             const response = await fetch(`${notesapi}${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -397,5 +399,27 @@
 
     #memberSpan {
         color: red;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .header button {
+        padding: 8px 12px;
+        border: none;
+        background-color: #006eff;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .header button:hover {
+        background-color: #0056b3;
     }
 </style>
