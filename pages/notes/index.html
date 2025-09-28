@@ -52,7 +52,7 @@
     document.getElementById("closeMemberBtn").addEventListener("click", () => {
         document.getElementById("modal").classList.add("hidden")
         document.getElementById("memberEmail").value = ""
-        console.log("Modal closed")
+        //console.log("Modal closed")
     })
 
     document.getElementById("addMemberBtn").addEventListener("click", async () => {
@@ -71,7 +71,7 @@
                     throw new Error("Failed to add user")
                 }
                 await response.json()
-                console.log("user added: " + email)
+                //console.log("user added: " + email)
                 document.getElementById("modal").classList.add("hidden")
                 document.getElementById("memberEmail").value = ""
             } catch (error) {
@@ -98,7 +98,7 @@
                 method: "GET",
             })
             const data = await response.json()
-            console.log(data)
+            //console.log(data)
             return data
         } catch (error) {
             console.error("Login failed:", error)
@@ -124,7 +124,7 @@
             }
 
             const newNote = await response.json()
-            console.log("Note created:", newNote)
+            //console.log("Note created:", newNote)
             const notes = await fetchNotes()
             if (notes) {
                 boardDiv.innerHTML = ""
@@ -293,7 +293,7 @@
                 throw new Error("Failed to update note position")
             }
 
-            console.log(`Note ${id} position updated to (${x}, ${y})`)
+            //console.log(`Note ${id} position updated to (${x}, ${y})`)
         } catch (err) {
             console.error("Error updating note:", err)
         }
@@ -311,7 +311,7 @@
                 throw new Error("Failed to update note text")
             }
 
-            console.log(`Note ${id} text updated: "${newText}"`)
+            //console.log(`Note ${id} text updated: "${newText}"`)
         } catch (err) {
             console.error("Error updating text:", err)
         }
@@ -329,7 +329,7 @@
                 throw new Error("Failed to update note color")
             }
 
-            console.log(`Note ${id} color updated: "${color}"`)
+            //console.log(`Note ${id} color updated: "${color}"`)
         } catch (err) {
             console.error("Error updating color:", err)
         }
@@ -346,7 +346,7 @@
             }
 
             noteDiv.remove()
-            console.log(`Note ${id} deleted`)
+            //console.log(`Note ${id} deleted`)
         } catch (err) {
             console.error("Error deleting note:", err)
         }

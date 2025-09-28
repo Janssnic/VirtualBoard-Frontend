@@ -35,7 +35,7 @@ loginForm.addEventListener("submit", async (event) => {
 
         if (data.jwt) {
             localStorage.setItem("token", data.jwt)
-            console.debug(localStorage.getItem("token"))
+            //console.debug(localStorage.getItem("token"))
         }
 
         window.location.href = "../boards"
@@ -77,7 +77,7 @@ registerForm.addEventListener("submit", async (event) => {
 
         if (data.jwt) {
             localStorage.setItem("token", data.jwt)
-            console.debug(localStorage.getItem("token"))
+            //console.debug(localStorage.getItem("token"))
         }
 
         window.location.href = "../boards"

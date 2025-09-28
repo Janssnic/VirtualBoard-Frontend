@@ -53,7 +53,7 @@
                 }
             });
             const data = await response.json();
-            console.log(data);
+            //console.log(data);
 
             return data;
         } catch (error) {
@@ -64,7 +64,7 @@
 
     fetchBoards().then(data => {
         if (data && data.boards && data.boards.length > 0) {
-            console.log(data.boards[0].board.title);
+            //console.log(data.boards[0].board.title);
 
             const newBoardDiv = document.createElement("div");
             newBoardDiv.className = "board";
@@ -76,7 +76,7 @@
             document.getElementById("closeModalBtn").addEventListener("click", () => {
                 document.getElementById("modal").classList.add("hidden");
                 document.getElementById("boardTitle").value = "";
-                console.log("Modal closed");
+                //console.log("Modal closed");
             });
 
             document.getElementById("createBoardBtn").addEventListener("click", async () => {
@@ -95,7 +95,7 @@
                             throw new Error("Failed to create board");
                         }
                         await response.json();
-                        console.log("Board created: " + title);
+                        //console.log("Board created: " + title);
                         document.getElementById("modal").classList.add("hidden");
                         document.getElementById("boardTitle").value = "";
                         window.location.reload();
@@ -156,7 +156,7 @@
                         if (!response.ok) {
                             throw new Error("Failed to delete board");
                         }
-                        console.log("Board deleted:", boardToDelete);
+                        //console.log("Board deleted:", boardToDelete);
                         document.getElementById("deleteModal").classList.add("hidden");
                         boardToDelete = null;
                         window.location.reload();
